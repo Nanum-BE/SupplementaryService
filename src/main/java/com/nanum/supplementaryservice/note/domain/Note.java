@@ -1,11 +1,14 @@
 package com.nanum.supplementaryservice.note.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nanum.config.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -29,12 +32,22 @@ public class Note extends BaseTimeEntity{
     private boolean readMark;
 
     @Column(nullable = false)
-    private Long sender;
+    private Long senderId;
 
     @Column(nullable = false)
-    private Long receiver;
+    private Long receiverId;
 
     private LocalDateTime senderDeleteAt;
     private LocalDateTime ReceiverDeleteAt;
 
+
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
+    @Builder.Default
+    @JsonIgnore
+    private List<NoteImg> noteImgList = new ArrayList<>();
+
+    public void addNoteImg(NoteImg noteImg){
+        noteImg.setNoteImg(this);
+        noteImgList.add(noteImg);
+    }
 }

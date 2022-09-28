@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -28,6 +29,19 @@ public class S3Service {
         String fileName = dirName +  UUID.randomUUID() + "-" +uploadFile.getOriginalFilename();
         String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
         return uploadImageUrl;
+    }
+
+    public HashMap<String, String> uploadHash(MultipartFile uploadFile) throws IOException {
+//    System.out.println(uploadFile.getName());
+        String fileName = UUID.randomUUID() + "-" +uploadFile.getOriginalFilename();
+        String uploadImageUrl = putS3(uploadFile, fileName); // s3로 업로드
+
+        HashMap<String, String> imgInfo  = new HashMap<>();
+        imgInfo.put("originName", uploadFile.getOriginalFilename());
+        imgInfo.put("savedName", fileName);
+        imgInfo.put("imgPath", uploadImageUrl);
+
+        return imgInfo;
     }
     // S3로 업로드
     private String putS3(MultipartFile uploadFile, String fileName) throws IOException {
