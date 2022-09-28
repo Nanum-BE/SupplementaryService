@@ -5,11 +5,11 @@ springdoc:
       enabled: true
   default-produces-media-type: application/json;charset=UTF-8
   default-consumes-media-type: application/json;charset=UTF-8
-  version: v1.0.0
+  version: v3.0.0
   swagger-ui:
-    operations-sorter: alpha
+    operations-sorter: method
     tags-sorter: alpha
     path: /bus/v3/api-docs
   cache:
     disabled: true
-  packages-to-scan: com.nanum.supplementary-service
+  packages-to-scan: com.nanum

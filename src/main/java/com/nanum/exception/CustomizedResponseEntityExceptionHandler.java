@@ -42,7 +42,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                                                                    WebRequest request) {
         ExceptionResponse exceptionResponse =
                 new ExceptionResponse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분 ss초")),
-                        "Validation Failed",ex.getBindingResult().toString());
+                        "Validation Failed",ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
     }

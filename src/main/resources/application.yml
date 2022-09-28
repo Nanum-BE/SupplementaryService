@@ -6,6 +6,8 @@ server:
 
 spring:
   profiles:
-    include: mysql, swagger
+    include: mysql, swagger, s3
   messages:
     basename: messages
+
+
