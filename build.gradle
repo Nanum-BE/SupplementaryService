@@ -1,4 +1,4 @@
-plugins {
+ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'java'
@@ -21,6 +21,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java'
@@ -31,6 +32,10 @@ dependencies {
     // test
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
 
+    // rest api 3.0 version
+    implementation group: 'org.springframework.hateoas', name: 'spring-hateoas'
+
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
 }
 
 tasks.named('test') {

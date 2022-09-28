@@ -1,5 +1,6 @@
 package com.nanum.supplementaryservice.note.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nanum.config.BaseTimeEntity;
 import lombok.*;
 
@@ -10,9 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "notenote")
 @Entity
-public class Note {
+public class Note extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

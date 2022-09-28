@@ -1,5 +1,6 @@
 package com.nanum.supplementaryservice.note.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nanum.supplementaryservice.note.domain.Note;
 import lombok.Data;
 
