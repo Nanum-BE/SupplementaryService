@@ -4,9 +4,8 @@ import com.nanum.exception.ImgNotFoundException;
 import com.nanum.exception.NoteNotFoundException;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.domain.NoteImg;
-import com.nanum.supplementaryservice.note.dto.NoteByUserDto;
-import com.nanum.supplementaryservice.note.dto.NoteDto;
-import com.nanum.supplementaryservice.note.dto.NoteImgDto;
+import com.nanum.supplementaryservice.note.dto.*;
+import com.nanum.supplementaryservice.note.infrastructure.NoteImgRepository;
 import com.nanum.supplementaryservice.note.infrastructure.NoteRepository;
 import com.nanum.utils.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +30,10 @@ public class NoteServiceImpl implements NoteService{
 
     private final NoteRepository noteRepository;
     private final S3Service s3Service;
+    private final NoteImgRepository noteImgRepository;
     @Override
-    public void createNote(NoteDto noteDto, List<MultipartFile> images)  {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    public Long createNote(NoteDto noteDto, List<MultipartFile> images)  {
+
         Note note = noteDto.noteDtoToEntity();
         if(images!=null){
             // s3 변환
@@ -55,21 +54,28 @@ public class NoteServiceImpl implements NoteService{
             }
         }
 
-        noteRepository.save(note);
+        return noteRepository.save(note).getId();
 
     }
 
     @Override
-    public Page<Note> retrieveNotesBySent(Long userId, Pageable pageable) {
+    public Page<NoteListDto> retrieveNotesBySent(Long userId, Pageable pageable) {
+
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
         // 유효성 검사
-        Page<Note> notes = noteRepository.findBySender(userId, pageable);
-        //
-        return notes;
+
+
+        // 리스트 가져오기
+        return noteRepository.findBySenderId(userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
     }
 
     @Override
-    public List<Note> retrieveNotesByReceived(Long UserId) {
-        return null;
+    public  Page<NoteListDto> retrieveNotesByReceived(Long userId,Pageable pageable) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return noteRepository.findByReceiverId(userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
     }
 
     @Override
@@ -89,6 +95,7 @@ public class NoteServiceImpl implements NoteService{
     public void deleteNote(Long noteId) {
         try{
             noteRepository.deleteById(noteId);
+            noteImgRepository.deleteAllByNoteId(noteId);
         } catch (Exception ex){
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
         }
@@ -97,9 +104,19 @@ public class NoteServiceImpl implements NoteService{
     @Override
     public Note retrieveNoteById(Long noteId) {
         Optional<Note> note = noteRepository.findById(noteId);
+
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
         }
-        return note.get();
+        // 읽음처리하기
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+        noteChangeDto.setReadMark(true);
+
+        Note changeNote = noteChangeDto.NoteChangeDto();
+        Note finalNote = noteRepository.save(changeNote);
+
+        return finalNote;
     }
 }
