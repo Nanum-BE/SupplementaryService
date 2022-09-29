@@ -7,6 +7,8 @@ import com.nanum.supplementaryservice.note.application.NoteService;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.dto.NoteDto;
 import com.nanum.supplementaryservice.note.dto.NoteImgDto;
+import com.nanum.supplementaryservice.note.dto.NoteListDto;
+import com.nanum.supplementaryservice.note.vo.NoteImgResponse;
 import com.nanum.supplementaryservice.note.vo.NoteRequest;
 import com.nanum.supplementaryservice.note.vo.NoteResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +38,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,16 +71,23 @@ public class NoteController {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         NoteDto noteDto = modelMapper.map(noteDetails, NoteDto.class);
-        noteDto.setSender(senderId);
-
+        noteDto.setSenderId(senderId);
+        Long noteId;
         if(images!=null){
-            noteService.createNote(noteDto, images);
+            noteId= noteService.createNote(noteDto, images);
         }else{
-            noteService.createNote(noteDto, null);
+            noteId =noteService.createNote(noteDto, null);
         }
-        String result = "성공!";
-        BaseResponse<String> response = new BaseResponse<>(result);
-        return  ResponseEntity.status(HttpStatus.CREATED).body(response);
+        HashMap<String,String> result = new HashMap<>();
+        String results = "성공!";
+        result.put("result", results);
+        EntityModel<HashMap<String, String>> entityModel = EntityModel.of(result);
+        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveNote(noteId));
+        entityModel.add(linkTo.withRel("detail-note"));
+        BaseResponse<EntityModel> baseResponse = new BaseResponse<>(entityModel);
+        MappingJacksonValue jacksonValue = new MappingJacksonValue(baseResponse);
+//        BaseResponse<String> baseResponse = new BaseResponse<>(result);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(jacksonValue);
 
     }
 
@@ -104,24 +115,24 @@ public class NoteController {
      *
      */
     @GetMapping
-    public ResponseEntity<Object> retrieveAllNotes(){
+    public ResponseEntity<List<Note>> retrieveAllNotes(){
         List<Note> notes = noteService.retrieveNotes();
 
-        List<NoteResponse> noteResponses = notes.stream()
-                .map(note -> new ModelMapper().map(note, NoteResponse.class))
-                .collect(Collectors.toList());
+//        List<NoteResponse> noteResponses = notes.stream()
+//                .map(note -> new ModelMapper().map(note, NoteResponse.class))
+//                .collect(Collectors.toList());
+//
+//        BaseResponse<List<NoteResponse>> baseResponse = new BaseResponse<>(noteResponses);
+//
+//        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
+//                .filterOutAllExcept("id", "senderId", "receiverId", "title", "createAt", "readMark");
+//        SimpleFilterProvider filters = new SimpleFilterProvider()
+//                .addFilter("NoteInfo", filter);
+//
+//        MappingJacksonValue jacksonValue = new MappingJacksonValue(baseResponse);
+//        jacksonValue.setFilters(filters);
 
-        BaseResponse<List<NoteResponse>> baseResponse = new BaseResponse<>(noteResponses);
-
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
-                .filterOutAllExcept("id", "sender", "receiver", "title", "createAt", "read");
-        SimpleFilterProvider filters = new SimpleFilterProvider()
-                .addFilter("NoteInfo", filter);
-
-        MappingJacksonValue jacksonValue = new MappingJacksonValue(baseResponse);
-        jacksonValue.setFilters(filters);
-
-        return ResponseEntity.status(HttpStatus.OK).body(jacksonValue);
+        return ResponseEntity.status(HttpStatus.OK).body(notes);
 
     }
 
@@ -131,20 +142,22 @@ public class NoteController {
 
         // 1. MAKE VO
         NoteResponse response = new ModelMapper().map(note, NoteResponse.class);
+        List<NoteImgResponse> noteImgResponses = Arrays.asList(new ModelMapper().map(note.getNoteImgList(), NoteImgResponse[].class));
 
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("note",response);
+        result.put("noteImgList",noteImgResponses);
         // 2. MAKE HATEOAS
-        EntityModel<NoteResponse> entityModel = EntityModel.of(response);
-        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllNotes());
-        entityModel.add(linkTo.withRel("all-notes"));
-
+//        EntityModel<NoteResponse> entityModel = EntityModel.of(response);
+//        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllNotes());
+//        entityModel.add(linkTo.withRel("all-notes"));
 
         // 3. MAKE BaseResponse
-        BaseResponse<EntityModel> baseResponse = new BaseResponse<>(entityModel);
-
+        BaseResponse<HashMap<String, Object>> baseResponse = new BaseResponse<>(result);
 
         // 4. MAKE Filter
         SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
-                .filterOutAllExcept("id", "sender", "receiver", "title", "createAt","content");
+                .filterOutAllExcept("id", "senderId", "receiverId", "title", "createAt","content");
         SimpleFilterProvider filters = new SimpleFilterProvider()
                 .addFilter("NoteInfo", filter);
 
@@ -161,25 +174,22 @@ public class NoteController {
     }
 
     @GetMapping("/{userId}/sent")
-    public Page<Note> retrieveAllNotesBySender(@PathVariable("userId") Long userId,
+    public ResponseEntity<BaseResponse<Page<NoteListDto>>> retrieveAllNotesBySender(@PathVariable("userId") Long userId,
                                                @PageableDefault(sort = "createAt",
                                                        direction = Sort.Direction.DESC)
                                                Pageable pageable){
 
-        Page<Note> notes = noteService.retrieveNotesBySent(userId, pageable);
-        return notes;
-//        BaseResponse<List<NoteResponse>> baseResponse = new BaseResponse<>(noteResponses);
-//
-//        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
-//                .filterOutAllExcept("id", "sender", "receiver", "title", "createAt", "read");
-//        SimpleFilterProvider filters = new SimpleFilterProvider()
-//                .addFilter("NoteInfo", filter);
-//
-//        MappingJacksonValue jacksonValue = new MappingJacksonValue(baseResponse);
-//        jacksonValue.setFilters(filters);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(jacksonValue);
-
+        Page<NoteListDto> noteListDtoList = noteService.retrieveNotesBySent(userId, pageable);
+        BaseResponse<Page<NoteListDto>> response = new BaseResponse<>(noteListDtoList);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
+    @GetMapping("/{userId}/received")
+    public ResponseEntity<BaseResponse<Page<NoteListDto>>> retrieveAllNotesByReceiver(@PathVariable("userId") Long userId,
+                                                                                    @PageableDefault(sort = "createAt",
+                                                                                            direction = Sort.Direction.DESC)
+                                                                                    Pageable pageable){
+        Page<NoteListDto> noteListDtoList = noteService.retrieveNotesByReceived(userId, pageable);
+        BaseResponse<Page<NoteListDto>> response = new BaseResponse<>(noteListDtoList);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

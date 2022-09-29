@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nanum.config.BaseTimeEntity;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,7 +16,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "note")
+@SQLDelete(sql = "update note set delete_at=now() where id=?")
+@Where(clause = "delete_at is null")
 public class Note extends BaseTimeEntity{
 
     @Id
@@ -41,7 +45,7 @@ public class Note extends BaseTimeEntity{
     private LocalDateTime ReceiverDeleteAt;
 
 
-    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
     private List<NoteImg> noteImgList = new ArrayList<>();
