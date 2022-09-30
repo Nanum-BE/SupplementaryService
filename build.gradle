@@ -29,15 +29,47 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
-    // test
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+//    // test
+//    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
 
     // rest api 3.0 version
     implementation group: 'org.springframework.hateoas', name: 'spring-hateoas'
 
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
 
+    // s3
     implementation('org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE')
+
+    // kafka
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '3.1.2'
+
+    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.9.0'
+
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-config
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '3.0.0'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-bootstrap
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.7.1'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-bus-amqp
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bus-amqp', version: '3.0.0'
+
+    // https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-openfeign
+    // Feign Client
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-circuitbreaker-resilience4j
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-circuitbreaker-resilience4j', version: '2.1.2'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-sleuth
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-sleuth', version: '3.1.2'
+// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-sleuth-zipkin
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-sleuth-zipkin', version: '3.1.2'
+
+    // https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-prometheus
+    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.9.2'
+
 }
 
 tasks.named('test') {
