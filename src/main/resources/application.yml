@@ -11,8 +11,10 @@ spring:
     include: mysql, swagger, s3
   messages:
     basename: messages
+
   jpa:
     open-in-view: false
+
   rabbitmq:
     port: 5672
     username: guest
