@@ -26,8 +26,12 @@ public interface NoteService{
     Page<NoteListDto> retrieveNotesBySent(Long UserId, Pageable pageable);
     Page<NoteListDto> retrieveNotesByReceived(Long userId,Pageable pageable);
     List<Note> retrieveNotes();
-    void deleteNoteBySenderId(NoteByUserDto noteByUserDto);
     void deleteNote(Long noteId);
-
     Note retrieveNoteById(Long noteId);
+    Boolean existsById(Long noteId);
+
+    void deleteNoteBySenderId(NoteByUserDto noteByUserDto);
+
+    void deleteNoteByUserId(NoteByUserDto noteByUserDto);
+
 }

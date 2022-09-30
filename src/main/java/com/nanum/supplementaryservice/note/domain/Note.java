@@ -3,6 +3,7 @@ package com.nanum.supplementaryservice.note.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nanum.config.BaseTimeEntity;
+import com.nanum.supplementaryservice.police.domain.Status;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -19,6 +20,7 @@ import java.util.List;
 @Entity(name = "note")
 @SQLDelete(sql = "update note set delete_at=now() where id=?")
 @Where(clause = "delete_at is null")
+
 public class Note extends BaseTimeEntity{
 
     @Id
@@ -41,10 +43,8 @@ public class Note extends BaseTimeEntity{
     @Column(nullable = false)
     private Long receiverId;
 
-    private LocalDateTime senderDeleteAt;
-    private LocalDateTime ReceiverDeleteAt;
-
-
+    @Column(columnDefinition = "bigint default 0")
+    private Long deleterId;
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     @JsonIgnore
@@ -54,4 +54,9 @@ public class Note extends BaseTimeEntity{
         noteImg.setNoteImg(this);
         noteImgList.add(noteImg);
     }
+    @PrePersist
+    public void prePersist() {
+        this.deleterId = this.deleterId == null ? 0 : this.deleterId;
+    }
+
 }

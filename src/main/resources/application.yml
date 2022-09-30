@@ -11,12 +11,10 @@ spring:
     include: mysql, swagger, s3
   messages:
     basename: messages
-  zipkin:
-    base-url: http://20.214.170.222:9411
-    enabled: true
-  sleuth:
-    sampler:
-      probability: 1.0
+
+  jpa:
+    open-in-view: false
+
   rabbitmq:
     port: 5672
     username: guest
@@ -37,5 +35,4 @@ management:
     web:
       exposure:
         include: refresh, health, info, httptrace, metrics, prometheus
-
 

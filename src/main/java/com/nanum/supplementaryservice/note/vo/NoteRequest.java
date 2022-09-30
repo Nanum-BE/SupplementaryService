@@ -2,8 +2,6 @@ package com.nanum.supplementaryservice.note.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -22,4 +20,8 @@ public class NoteRequest {
     @NotNull(message = "receiver cannot be null")
     @Schema(description = "수신자의 ID값을 입력하세요.", defaultValue = "0")
     private Long receiverId;
+
+    @NotNull(message = "senderId cannot be null")
+    @Schema(description = "발신자의 ID값을 입력하세요.", defaultValue = "0")
+    private Long senderId;
 }
