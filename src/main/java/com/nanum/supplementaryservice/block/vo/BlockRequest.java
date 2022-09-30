@@ -9,6 +9,10 @@ import javax.validation.constraints.NotNull;
 public class BlockRequest {
 
 
+    @NotNull(message = "blockerId cannot be null")
+    @Schema(description = "차단자의 ID값을 입력하세요.", defaultValue = "0")
+    private Long blockerId;
+
     @NotNull(message = "blocked_userId cannot be null")
     @Schema(description = "차단당한사람의 ID값을 입력하세요.", defaultValue = "0")
     private Long blockedUserId;

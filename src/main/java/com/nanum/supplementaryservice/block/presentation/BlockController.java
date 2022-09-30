@@ -24,11 +24,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/blocks")
+@RequestMapping("/api/v1/blocks")
 @Tag(name = "차단", description = "차단 관련 api")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "created successfully",
@@ -42,16 +43,21 @@ public class BlockController {
     private final BlockService blockService;
 
     @Operation(summary = "차단 등록 API", description = "차단 등록하는 요청")
-    @PostMapping("/{blockerId}")
-    public ResponseEntity<Object> createBlock(@PathVariable("blockerId") Long blockerId,
-                                              @Valid @RequestBody BlockRequest blockRequest) {
+    @PostMapping
+    public ResponseEntity<Object> createBlock(@Valid @RequestBody BlockRequest blockRequest) {
 
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         BlockDto blockDto = modelMapper.map(blockRequest, BlockDto.class);
-        blockDto.setBlockerId(blockerId);
-        Long block = blockService.createBlock(blockDto);
-        BaseResponse<Long> baseResponse = new BaseResponse<>(block);
+        boolean block = blockService.createBlock(blockDto);
+        if(!block){
+            BaseResponse<Object> baseResponse = new BaseResponse<>("기존에 차단한 사람입니다.", "No");
+            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(baseResponse);
+        }
+
+        HashMap<String, Boolean> result = new HashMap<>();
+        result.put("blockId", true);
+        BaseResponse<Object> baseResponse = new BaseResponse<>(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(baseResponse);
     }
 
@@ -72,17 +78,23 @@ public class BlockController {
     }
 
     @GetMapping("/blocker/{blockerId}/blocked/{blockedUserId}")
-    public ResponseEntity<BaseResponse<Boolean>> validBlock(@PathVariable("blockerId") Long blockerId,
+    public ResponseEntity<BaseResponse<HashMap<String, Boolean>>>validBlock(@PathVariable("blockerId") Long blockerId,
                                                            @PathVariable("blockedUserId") Long blockedUserId){
         BlockDto blockDto = new BlockDto();
         blockDto.setBlockedUserId(blockedUserId);
         blockDto.setBlockerId(blockerId);
         boolean validBlock = blockService.validBlockedUserId(blockDto);
-        BaseResponse<Boolean> baseResponse = new BaseResponse<>(validBlock);
+        HashMap<String,Boolean> result = new HashMap<>();
+        result.put("valid",validBlock);
+        BaseResponse<HashMap<String, Boolean>> baseResponse = new BaseResponse<>(result);
 
         return ResponseEntity.status(HttpStatus.OK).body(baseResponse);
 
     }
-
+    @DeleteMapping("/{blockId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteBlock(@PathVariable("blockId") Long blockId){
+        blockService.deleteBlock(blockId);
+    }
 
 }

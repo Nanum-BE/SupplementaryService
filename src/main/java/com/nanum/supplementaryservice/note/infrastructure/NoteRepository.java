@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NoteRepository  extends JpaRepository<Note, Long> {
-    Page<Note> findBySenderId(Long senderId, Pageable pageable);
+        Page<Note> findBySenderIdAndDeleterIdIsNot(Long senderId,Long deleterId, Pageable pageable);
 
     Page<Note> findByReceiverId(Long receiverId, Pageable pageable);
 

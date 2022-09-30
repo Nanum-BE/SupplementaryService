@@ -20,4 +20,8 @@ public class NoteRequest {
     @NotNull(message = "receiver cannot be null")
     @Schema(description = "수신자의 ID값을 입력하세요.", defaultValue = "0")
     private Long receiverId;
+
+    @NotNull(message = "senderId cannot be null")
+    @Schema(description = "발신자의 ID값을 입력하세요.", defaultValue = "0")
+    private Long senderId;
 }

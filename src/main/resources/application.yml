@@ -5,9 +5,32 @@ server:
 #    org.springframework: DEBUG
 
 spring:
+  application:
+    name: supplementary-service
   profiles:
     include: mysql, swagger, s3
   messages:
     basename: messages
   jpa:
     open-in-view: false
+  rabbitmq:
+    port: 5672
+    username: guest
+    password: guest
+    host: 20.214.170.222
+#spring.cloud.client.hostname
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://20.214.170.222:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, info, httptrace, metrics, prometheus
+

@@ -23,10 +23,18 @@ public class BlockServiceImpl implements BlockService{
     private final BlockRepository blockRepository;
 
     @Override
-    public Long createBlock(BlockDto blockDto) {
-        Block block = blockDto.blockDtoToEntity();
+    public boolean createBlock(BlockDto blockDto) {
         // check
-        return blockRepository.save(block).getId();
+
+
+        boolean result = blockRepository.existsByBlockerIdAndBlockedUserId(blockDto.getBlockerId(), blockDto.getBlockedUserId());
+
+        if(result){
+               return false;
+        }
+        Block block = blockDto.blockDtoToEntity();
+        blockRepository.save(block);
+        return true;
     }
 
     @Override
@@ -52,6 +60,6 @@ public class BlockServiceImpl implements BlockService{
 
     @Override
     public boolean validBlockedUserId(BlockDto blockDto) {
-    return  blockRepository.findByBlockerIdAndBlockedUserId(blockDto.getBlockerId(), blockDto.getBlockedUserId());
+    return  blockRepository.existsByBlockerIdAndBlockedUserId(blockDto.getBlockerId(), blockDto.getBlockedUserId());
     }
 }

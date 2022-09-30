@@ -40,7 +40,6 @@ public class NoteImg  extends BaseTimeEntity {
     @JsonIgnore
     private Note note;
 
-    private LocalDateTime deleteAt;
     public void setNoteImg(Note note){
         this.note = note;
     }

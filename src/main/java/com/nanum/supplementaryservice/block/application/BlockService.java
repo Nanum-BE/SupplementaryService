@@ -16,7 +16,7 @@ public interface BlockService {
     4. 차단한 사람의 차단 당한 사람들의 목록
     5. 차단 여부 확인
      */
-    Long createBlock(BlockDto blockDto);
+    boolean createBlock(BlockDto blockDto);
 
     void deleteBlock(Long blockId);
 

@@ -11,5 +11,8 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
 
     Page<Block> findByBlockerId(Long blockerId, Pageable pageable);
 
-    boolean findByBlockerIdAndBlockedUserId(Long blockerId, Long blockedUserId);
+    @Override
+    boolean existsById(Long aLong);
+
+    boolean existsByBlockerIdAndBlockedUserId(Long blockerId, Long blockedUserId);
 }

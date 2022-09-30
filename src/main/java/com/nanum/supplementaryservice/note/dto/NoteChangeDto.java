@@ -15,8 +15,7 @@ public class NoteChangeDto {
     private boolean readMark;
     private Long senderId;
     private Long receiverId;
-    private LocalDateTime senderDeleteAt;
-    private LocalDateTime ReceiverDeleteAt;
+    private Long deleterId;
     private List<NoteImg> noteImgList;
     public Note NoteChangeDto(){
         return Note.builder()
@@ -27,8 +26,7 @@ public class NoteChangeDto {
                 .receiverId(getReceiverId())
                 .id(getId())
                 .readMark(isReadMark())
-                .ReceiverDeleteAt(getReceiverDeleteAt())
-                .senderDeleteAt(getSenderDeleteAt())
+                .deleterId(getDeleterId())
                 .build();
     }
 }

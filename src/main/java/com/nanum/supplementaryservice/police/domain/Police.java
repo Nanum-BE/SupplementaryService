@@ -31,10 +31,18 @@ public class Police extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @Column(nullable = false)
+    private Long typeId;
+
+    @Column(length = 32, columnDefinition = "varchar(32) default 'WAITING'")
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(nullable = false)
     private String reason;
 
+    @PrePersist
+    public void prePersist() {
+        this.status = this.status == null ? Status.WAITING : this.status;
+    }
 }

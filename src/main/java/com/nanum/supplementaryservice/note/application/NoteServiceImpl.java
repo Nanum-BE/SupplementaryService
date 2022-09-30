@@ -68,7 +68,7 @@ public class NoteServiceImpl implements NoteService{
 
 
         // 리스트 가져오기
-        return noteRepository.findBySenderId(userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
+        return noteRepository.findBySenderIdAndDeleterIdIsNot(userId, userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
     }
 
     @Override
@@ -90,6 +90,28 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
+    public void deleteNoteByUserId(NoteByUserDto noteByUserDto) {
+        // user 검색
+        Optional<Note> note = noteRepository.findById(noteByUserDto.getNoteId());
+        if(note.isEmpty()){
+            throw new NoteNotFoundException(String.format("Note [%s] not found",noteByUserDto.getNoteId()));
+        }
+        ModelMapper modelMapper = new ModelMapper();
+        NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+        Long deleterId = noteChangeDto.getDeleterId();
+        // 2명 이상이 삭제할 때
+        if(deleterId != 0){
+            deleteNote(noteByUserDto.getNoteId());
+            return;
+        }
+
+        noteChangeDto.setDeleterId(noteByUserDto.getUserId());
+        Note changeNote = noteChangeDto.NoteChangeDto();
+        noteRepository.save(changeNote);
+
+    }
+
+    @Override
     public void deleteNote(Long noteId) {
         try{
             noteRepository.deleteById(noteId);
@@ -106,15 +128,27 @@ public class NoteServiceImpl implements NoteService{
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
         }
-        // 읽음처리하기
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
-        noteChangeDto.setReadMark(true);
+        if(!note.get().isReadMark()){
+            // 읽음처리하기
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+            noteChangeDto.setReadMark(true);
+            Note changeNote = noteChangeDto.NoteChangeDto();
+            Note finalNote = noteRepository.save(changeNote);
+            return finalNote;
+        }
+        return note.get();
 
-        Note changeNote = noteChangeDto.NoteChangeDto();
-        Note finalNote = noteRepository.save(changeNote);
+    }
 
-        return finalNote;
+    @Override
+    public Boolean existsById(Long noteId) {
+        boolean existsById = noteRepository.existsById(noteId);
+        if(!existsById){
+            throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
+        }
+
+        return true;
     }
 }

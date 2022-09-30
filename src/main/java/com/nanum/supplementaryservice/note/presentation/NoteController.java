@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.nanum.config.BaseResponse;
 import com.nanum.supplementaryservice.note.application.NoteService;
 import com.nanum.supplementaryservice.note.domain.Note;
+import com.nanum.supplementaryservice.note.dto.NoteByUserDto;
 import com.nanum.supplementaryservice.note.dto.NoteDto;
 import com.nanum.supplementaryservice.note.dto.NoteImgDto;
 import com.nanum.supplementaryservice.note.dto.NoteListDto;
@@ -63,15 +64,13 @@ public class NoteController {
     private final NoteService noteService;
     // GET
     @Operation(summary = "쪽지 등록 API", description = "쪽지를 등록하는 요청")
-    @PostMapping(value = "/{senderId}",
+    @PostMapping(
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Object> createNote(@PathVariable("senderId") Long senderId,
-                                             @Valid @RequestPart NoteRequest noteDetails,
+    public ResponseEntity<Object> createNote(@Valid @RequestPart NoteRequest noteDetails,
                                              @RequestPart(required = false) List<MultipartFile> images) throws IOException {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         NoteDto noteDto = modelMapper.map(noteDetails, NoteDto.class);
-        noteDto.setSenderId(senderId);
         Long noteId;
         if(images!=null){
             noteId= noteService.createNote(noteDto, images);
@@ -169,8 +168,18 @@ public class NoteController {
 
     @DeleteMapping("/{noteId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteNote(@PathVariable Long noteId){
+    public void deleteNote(@PathVariable("noteId") Long noteId){
         noteService.deleteNote(noteId);
+    }
+    @DeleteMapping("/{noteId}/users/{userId}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteNoteByUser(@PathVariable("noteId") Long noteId,
+                                 @PathVariable("userId") Long userId){
+        NoteByUserDto noteByUserDto = new NoteByUserDto();
+        noteByUserDto.setNoteId(noteId);
+        noteByUserDto.setUserId(userId);
+
+        noteService.deleteNoteByUserId(noteByUserDto);
     }
 
     @GetMapping("/{userId}/sent")
