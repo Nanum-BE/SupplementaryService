@@ -80,9 +80,7 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public List<Note> retrieveNotes() {
-        List<Note> notes = noteRepository.findAll();
-
-        return notes;
+        return noteRepository.findAll();
     }
 
 
