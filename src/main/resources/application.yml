@@ -34,5 +34,5 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh, health, info, httptrace, metrics, prometheus
+        include: busrefresh, health, httptrace, metrics, prometheus
 
