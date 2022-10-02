@@ -1,18 +1,19 @@
 
 spring:
   datasource:
-    url: jdbc:mysql://supplementary-db.czvbkc5m4o6x.ap-northeast-2.rds.amazonaws.com/supplementaryDB?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+#    url: jdbc:mysql://supplementary-db.czvbkc5m4o6x.ap-northeast-2.rds.amazonaws.com/supplementaryDB?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
     username: nanum
     password: spharos1234!
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      idle-timeout: 100000
-      max-lifetime: 580000
-      connection-timeout: 10000
-      validation-timeout: 10000
+#    hikari:
+#      idle-timeout: 100000
+#      max-lifetime: 580000
+#      connection-timeout: 10000
+#      validation-timeout: 10000
+    url: jdbc:mysql://supplementary-db.mysql.database.azure.com/supplementaryDB?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
