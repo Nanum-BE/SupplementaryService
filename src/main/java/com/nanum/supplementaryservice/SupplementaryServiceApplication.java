@@ -31,7 +31,7 @@ public class SupplementaryServiceApplication {
         localeResolver.setDefaultLocale(Locale.KOREA);
         return localeResolver;
     }
-//231
+
     @Bean
     public Logger.Level feignLoggerLevel(){
         return Logger.Level.FULL;
