@@ -6,8 +6,10 @@ spring:
     password: spharos1234!
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-#      idle-timeout: 300
-      max-lifetime: 600000
+      idle-timeout: 100000
+      max-lifetime: 580000
+      connection-timeout: 10000
+      validation-timeout: 10000
   jpa:
     hibernate:
       ddl-auto: update
