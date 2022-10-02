@@ -48,10 +48,12 @@ dependencies {
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '3.0.0'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp:3.1.2'
     // Feign Client
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
-    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.9.2'
+    // kafka 추가
+    implementation 'org.springframework.kafka:spring-kafka:2.9.0'
+//    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.9.2'
 
 }
 

@@ -3,6 +3,7 @@ package com.nanum.supplementaryservice.police.application;
 import com.nanum.exception.NoteNotFoundException;
 import com.nanum.exception.PoliceChangeNotAcceptableException;
 import com.nanum.exception.PoliceNotFoundException;
+import com.nanum.messagequeue.KafkaProducer;
 import com.nanum.supplementaryservice.note.application.NoteService;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.infrastructure.NoteRepository;
@@ -29,6 +30,9 @@ import java.util.Optional;
 public class PoliceServiceImpl implements PoliceService{
     private final PoliceRepository policeRepository;
     private final NoteService noteService;
+
+    private final KafkaProducer kafkaProducer;
+
     @Override
     public boolean createPolice(PoliceDto policeDto) {
         //check user1, user2
@@ -66,14 +70,18 @@ public class PoliceServiceImpl implements PoliceService{
         }
 
         if(police.get().getStatus().equals(Status.COMPLETE)){
-            throw new PoliceChangeNotAcceptableException(String.format("ID[%s]은 수정이 완료되었습니다.",policeId));
+            throw new PoliceChangeNotAcceptableException(String.format("ID[%s]은 수정이 이미 완료되었습니다.",policeId));
         }
+
+
+        /* send this user to the kafka */
+        kafkaProducer.sendUserId("user-topic", police.get().getReportedUserId());
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         PoliceChangeStatusDto changeStatusDto = modelMapper.map(police.get(), PoliceChangeStatusDto.class);
         changeStatusDto.setStatus(Status.COMPLETE);
 
-        // kafka -> user에 값 올리기
+
         Police finalPolice = changeStatusDto.policeDtoTOEntity();
         policeRepository.save(finalPolice);
         return true;
