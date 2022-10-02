@@ -1,4 +1,4 @@
-plugins {
+ plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
     id 'java'
@@ -21,6 +21,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java'
@@ -28,8 +29,29 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.1.0'
-    // test
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+//    // test
+//    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.8'
+
+    // rest api 3.0 version
+    implementation group: 'org.springframework.hateoas', name: 'spring-hateoas'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
+
+    // s3
+    implementation('org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE')
+
+    // kafka
+
+   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client', version: '3.1.2'
+   implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.9.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '3.0.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+    // Feign Client
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
+    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.9.2'
 
 }
 

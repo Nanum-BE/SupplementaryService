@@ -1,0 +1,17 @@
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAZFR45ZP5DBW4GSFV
+      secretKey: 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
+    s3:
+      bucket: nanum
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 200MB
