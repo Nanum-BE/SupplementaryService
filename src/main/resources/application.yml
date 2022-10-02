@@ -29,10 +29,13 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://20.214.170.222:8761/eureka
-
+#      defaultZone: http://127.0.0.1:8761/eureka
 management:
   endpoints:
     web:
       exposure:
         include: busrefresh, health, httptrace, metrics, prometheus
 
+logging:
+  level:
+    com.nanum.supplementaryservice.client: DEBUG
