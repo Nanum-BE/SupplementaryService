@@ -38,7 +38,7 @@ public class Police extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String reason;
 
     @PrePersist

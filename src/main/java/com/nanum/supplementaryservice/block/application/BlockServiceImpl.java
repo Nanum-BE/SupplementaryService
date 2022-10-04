@@ -72,6 +72,12 @@ public class BlockServiceImpl implements BlockService{
 
     @Override
     public Page<BlockedUserDto> retrieveBlocksByBlocker(Long blockerId, Pageable pageable) {
+        UserResponse blockerUser = userServiceClient.getUser(blockerId);
+
+        log.info(String.valueOf(blockerUser));
+
+
+
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return blockRepository.findByBlockerId(blockerId, pageable).map(block -> modelMapper.map(block, BlockedUserDto.class));

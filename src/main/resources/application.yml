@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 8088
 #logging:
 #  level:
 #    org.springframework: DEBUG
@@ -34,7 +34,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: busrefresh, health, httptrace, metrics, prometheus
+        include: busrefresh, info, metrics, prometheus
 
 logging:
   level:
