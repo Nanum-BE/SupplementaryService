@@ -43,7 +43,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/notes")
+@RequestMapping("/api/notes/v1")
 @Tag(name = "쪽지", description = "쪽지 관련 api")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "created successfully",
