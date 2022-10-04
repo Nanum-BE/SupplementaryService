@@ -2,6 +2,9 @@ package com.nanum.supplementaryservice.note.application;
 
 import com.nanum.exception.ImgNotFoundException;
 import com.nanum.exception.NoteNotFoundException;
+import com.nanum.kafka.messagequeue.KafkaProducer;
+import com.nanum.supplementaryservice.client.UserServiceClient;
+import com.nanum.supplementaryservice.client.vo.UserResponse;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.domain.NoteImg;
 import com.nanum.supplementaryservice.note.dto.*;
@@ -31,8 +34,14 @@ public class NoteServiceImpl implements NoteService{
     private final NoteRepository noteRepository;
     private final S3Service s3Service;
     private final NoteImgRepository noteImgRepository;
+//    private final KafkaProducer kafkaProducer;
+    private final UserServiceClient userServiceClient;
+
     @Override
     public Long createNote(NoteDto noteDto, List<MultipartFile> images)  {
+        /* user*/
+        UserResponse blockedUser = userServiceClient.getUser(noteDto.getReceiverId());
+        UserResponse blockerId = userServiceClient.getUser(noteDto.getSenderId());
 
         Note note = noteDto.noteDtoToEntity();
         if(images!=null){
@@ -41,6 +50,11 @@ public class NoteServiceImpl implements NoteService{
 
                 try {
                     HashMap<String, String> uploadHash = s3Service.uploadHash(image);
+                    /*
+                        kafka if...
+
+                     */
+//                    kafkaProducer.createNote("note",noteDto);
                     NoteImgDto noteImgDto = NoteImgDto.builder()
                             .imgPath(uploadHash.get("imgPath"))
                             .originName(uploadHash.get("originName"))
@@ -60,6 +74,8 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public Page<NoteListDto> retrieveNotesBySent(Long userId, Pageable pageable) {
+        /* user*/
+        userServiceClient.getUser(userId);
 
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -73,6 +89,9 @@ public class NoteServiceImpl implements NoteService{
 
     @Override
     public  Page<NoteListDto> retrieveNotesByReceived(Long userId,Pageable pageable) {
+        /* user*/
+        userServiceClient.getUser(userId);
+
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return noteRepository.findByReceiverId(userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));

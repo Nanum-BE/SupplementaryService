@@ -1,14 +1,16 @@
 package com.nanum.kafka.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-@AllArgsConstructor
 @Builder
-public class Field {
+public class Schema {
     private String type;
+    private List<Field> fields;
     private boolean optional;
-    private String field;
+    private String name;
 }
+
