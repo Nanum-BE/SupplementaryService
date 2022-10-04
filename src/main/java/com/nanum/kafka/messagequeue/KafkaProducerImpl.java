@@ -1,4 +1,4 @@
-package com.nanum.messagequeue;
+package com.nanum.kafka.messagequeue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

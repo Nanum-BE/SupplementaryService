@@ -1,12 +1,9 @@
 package com.nanum.supplementaryservice.police.application;
 
-import com.nanum.exception.NoteNotFoundException;
 import com.nanum.exception.PoliceChangeNotAcceptableException;
 import com.nanum.exception.PoliceNotFoundException;
-import com.nanum.messagequeue.KafkaProducer;
+import com.nanum.kafka.messagequeue.KafkaProducer;
 import com.nanum.supplementaryservice.note.application.NoteService;
-import com.nanum.supplementaryservice.note.domain.Note;
-import com.nanum.supplementaryservice.note.infrastructure.NoteRepository;
 import com.nanum.supplementaryservice.police.domain.Police;
 import com.nanum.supplementaryservice.police.domain.Status;
 import com.nanum.supplementaryservice.police.domain.Type;

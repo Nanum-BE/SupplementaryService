@@ -1,4 +1,4 @@
-package com.nanum.messagequeue;
+package com.nanum.kafka.messagequeue;
 
 import java.util.HashMap;
 
