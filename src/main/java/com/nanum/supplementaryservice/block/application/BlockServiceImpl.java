@@ -7,6 +7,7 @@ import com.nanum.supplementaryservice.block.dto.BlockDto;
 import com.nanum.supplementaryservice.block.dto.BlockedUserDto;
 import com.nanum.supplementaryservice.block.infrastructure.BlockRepository;
 import com.nanum.supplementaryservice.client.UserServiceClient;
+import com.nanum.supplementaryservice.client.vo.UserDto;
 import com.nanum.supplementaryservice.client.vo.UserResponse;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class BlockServiceImpl implements BlockService{
     public boolean createBlock(BlockDto blockDto) {
         // check
 
-        UserResponse blockedUser = userServiceClient.getUser(blockDto.getBlockedUserId());
+        UserResponse<UserDto> blockedUser = userServiceClient.getUser(blockDto.getBlockedUserId());
         UserResponse blockerId = userServiceClient.getUser(blockDto.getBlockerId());
 
         log.info(String.valueOf(blockedUser));
@@ -72,9 +73,40 @@ public class BlockServiceImpl implements BlockService{
 
     @Override
     public Page<BlockedUserDto> retrieveBlocksByBlocker(Long blockerId, Pageable pageable) {
+        UserResponse blockerUser = userServiceClient.getUser(blockerId);
+
+        log.info(String.valueOf(blockerUser));
+        List<Long> users = new ArrayList<>();
+
+        // 정렬
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return blockRepository.findByBlockerId(blockerId, pageable).map(block -> modelMapper.map(block, BlockedUserDto.class));
+        Page<BlockedUserDto>  blockUsers = blockRepository.findByBlockerId(blockerId, pageable).
+                map(block -> {
+                    users.add(block.getBlockedUserId());
+                    return modelMapper.map(block, BlockedUserDto.class);
+                        }
+                );
+
+        log.info("userInfo:"+String.valueOf(blockUsers.getContent().get(0)));
+        if(blockUsers.getContent().size()<1){
+            return blockUsers;
+        }
+
+        // 유저 id 정리
+        log.info("User:"+ String.valueOf(users));
+        // 유저 정보 가져오기
+        UserResponse<List<UserDto>> usersById = userServiceClient.getUsersById(users);
+
+        return blockUsers.
+                map(block -> {
+                    for (UserDto user: usersById.getResult()) {
+                        if(user.getUserId().equals(block.getBlockedUserId())){
+                            block.setUser(user);
+                        }
+                    }
+                 return block;
+                });
     }
 
     @Override

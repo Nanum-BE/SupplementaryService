@@ -12,7 +12,10 @@ import java.util.Optional;
 public interface NoteRepository  extends JpaRepository<Note, Long> {
         Page<Note> findBySenderIdAndDeleterIdIsNot(Long senderId,Long deleterId, Pageable pageable);
 
-    Page<Note> findByReceiverId(Long receiverId, Pageable pageable);
+    Page<Note> findByReceiverIdAndDeleterIdIsNot(Long receiverId, Long deleterId,Pageable pageable);
+
+    List<Note> findByReceiverId(Long userId);
+    List<Note> findBySenderId(Long userId);
 
     @Override
     @EntityGraph(attributePaths = {"noteImgList"})

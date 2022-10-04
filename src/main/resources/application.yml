@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 8088
 #logging:
 #  level:
 #    org.springframework: DEBUG
@@ -28,13 +28,13 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://20.214.170.222:8761/eureka
-#      defaultZone: http://127.0.0.1:8761/eureka
+#      defaultZone: http://20.214.170.222:8761/eureka
+      defaultZone: http://127.0.0.1:8761/eureka
 management:
   endpoints:
     web:
       exposure:
-        include: busrefresh, health, httptrace, metrics, prometheus
+        include: busrefresh, info, metrics, prometheus
 
 logging:
   level:
