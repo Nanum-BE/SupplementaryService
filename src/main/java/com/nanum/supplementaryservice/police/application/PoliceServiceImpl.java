@@ -4,6 +4,8 @@ import com.nanum.exception.PoliceChangeNotAcceptableException;
 import com.nanum.exception.PoliceNotFoundException;
 import com.nanum.kafka.messagequeue.KafkaProducer;
 import com.nanum.supplementaryservice.client.UserServiceClient;
+import com.nanum.supplementaryservice.client.vo.UserDto;
+import com.nanum.supplementaryservice.client.vo.UserResponse;
 import com.nanum.supplementaryservice.note.application.NoteService;
 import com.nanum.supplementaryservice.police.domain.Police;
 import com.nanum.supplementaryservice.police.domain.Status;
@@ -20,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,7 +45,7 @@ public class PoliceServiceImpl implements PoliceService{
 
 
         //check user1, user2
-        boolean existsById = true;
+
         // check
         if(Type.BOARD.equals(policeDto.getType())){
             // board check
@@ -64,7 +68,36 @@ public class PoliceServiceImpl implements PoliceService{
     public Page<PoliceResponse> retrievePolices(Pageable pageable) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return policeRepository.findAll(pageable).map(police -> modelMapper.map(police,PoliceResponse.class));
+        List<Long> reportedUsers = new ArrayList<>();
+        List<Long> reporters = new ArrayList<>();
+        Page<PoliceResponse> policeResponses = policeRepository.findAll(pageable).map(police ->
+        {
+            reportedUsers.add(police.getReportedUserId());
+            reporters.add(police.getReporterId());
+            return modelMapper.map(police, PoliceResponse.class);
+        });
+
+        if(policeResponses.getContent().size()<1){
+            return policeResponses;
+        }
+        UserResponse<List<UserDto>> reportedUserList = userServiceClient.getUsersById(reportedUsers);
+        UserResponse<List<UserDto>> reporterList = userServiceClient.getUsersById(reporters);
+
+
+        return  policeResponses.
+                map(block -> {
+                    for (UserDto user: reportedUserList.getResult()) {
+                        if(user.getUserId().equals(block.getReportedUserId())){
+                            block.setReportedUser(user);
+                        }
+                    }
+                    for (UserDto user: reporterList.getResult()) {
+                        if(user.getUserId().equals(block.getReporterId())){
+                            block.setReporter(user);
+                        }
+                    }
+                    return block;
+                });
     }
 
     @Override

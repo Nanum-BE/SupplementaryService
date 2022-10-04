@@ -2,14 +2,16 @@ package com.nanum.supplementaryservice.note.application;
 
 import com.nanum.exception.ImgNotFoundException;
 import com.nanum.exception.NoteNotFoundException;
-import com.nanum.kafka.messagequeue.KafkaProducer;
 import com.nanum.supplementaryservice.client.UserServiceClient;
+import com.nanum.supplementaryservice.client.vo.UserDto;
 import com.nanum.supplementaryservice.client.vo.UserResponse;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.domain.NoteImg;
 import com.nanum.supplementaryservice.note.dto.*;
 import com.nanum.supplementaryservice.note.infrastructure.NoteImgRepository;
 import com.nanum.supplementaryservice.note.infrastructure.NoteRepository;
+import com.nanum.supplementaryservice.note.vo.NoteImgResponse;
+import com.nanum.supplementaryservice.note.vo.NoteResponse;
 import com.nanum.utils.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -67,34 +66,71 @@ public class NoteServiceImpl implements NoteService{
                 }
             }
         }
-
         return noteRepository.save(note).getId();
 
     }
 
     @Override
     public Page<NoteListDto> retrieveNotesBySent(Long userId, Pageable pageable) {
-        /* user*/
         userServiceClient.getUser(userId);
-
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        log.info(String.valueOf(userId));
+
+        List<Long> users = new ArrayList<>();
 
         // 유효성 검사
+        Page<NoteListDto> noteListDtos = noteRepository.findBySenderIdAndDeleterIdIsNot(userId, userId, pageable).map(note ->
+        {
+            users.add(note.getReceiverId());
+            return modelMapper.map(note, NoteListDto.class);
+        });
+        if(noteListDtos.getContent().size()<1){
+            return noteListDtos;
+        }
 
+        UserResponse<List<UserDto>> usersById = userServiceClient.getUsersById(users);
 
         // 리스트 가져오기
-        return noteRepository.findBySenderIdAndDeleterIdIsNot(userId, userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
+        return noteListDtos.
+                map(noteListDto -> {
+                    for (UserDto user: usersById.getResult()) {
+                        if(user.getUserId().equals(noteListDto.getReceiverId())){
+                            noteListDto.setReceiver(user);
+                        }
+                    }
+                    return noteListDto;
+                });
     }
 
     @Override
     public  Page<NoteListDto> retrieveNotesByReceived(Long userId,Pageable pageable) {
-        /* user*/
         userServiceClient.getUser(userId);
+        List<Long> users = new ArrayList<>();
 
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return noteRepository.findByReceiverId(userId, pageable).map(note -> modelMapper.map(note, NoteListDto.class));
+        Page<NoteListDto> noteListDtos = noteRepository.findByReceiverIdAndDeleterIdIsNot(userId, userId,pageable).map(note ->
+        {
+            users.add(note.getSenderId());
+            return modelMapper.map(note, NoteListDto.class);
+        });
+
+
+        if(noteListDtos.getContent().size()<1){
+            return noteListDtos;
+        }
+        UserResponse<List<UserDto>> usersById = userServiceClient.getUsersById(users);
+
+        return noteListDtos.
+                map(noteListDto -> {
+                    for (UserDto user: usersById.getResult()) {
+                        if(user.getUserId().equals(noteListDto.getSenderId())){
+                            noteListDto.setSender(user);
+                        }
+                    }
+                    return noteListDto;
+                });
     }
 
     @Override
@@ -111,6 +147,8 @@ public class NoteServiceImpl implements NoteService{
     @Override
     public void deleteNoteByUserId(NoteByUserDto noteByUserDto) {
         // user 검색
+        userServiceClient.getUser(noteByUserDto.getUserId());
+
         Optional<Note> note = noteRepository.findById(noteByUserDto.getNoteId());
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("Note [%s] not found",noteByUserDto.getNoteId()));
@@ -141,12 +179,13 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
-    public Note retrieveNoteById(Long noteId) {
+    public HashMap<String, Object> retrieveNoteById(Long noteId) {
         Optional<Note> note = noteRepository.findById(noteId);
-
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
         }
+        Note sendNote = note.get();
+
         if(!note.get().isReadMark()){
             // 읽음처리하기
             ModelMapper modelMapper = new ModelMapper();
@@ -154,10 +193,23 @@ public class NoteServiceImpl implements NoteService{
             NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
             noteChangeDto.setReadMark(true);
             Note changeNote = noteChangeDto.NoteChangeDto();
-            Note finalNote = noteRepository.save(changeNote);
-            return finalNote;
+            sendNote = noteRepository.save(changeNote);
         }
-        return note.get();
+
+        NoteResponse response = new ModelMapper().map(sendNote, NoteResponse.class);
+        UserResponse<UserDto> receiver = userServiceClient.getUser(sendNote.getReceiverId());
+        UserResponse<UserDto> sender = userServiceClient.getUser(sendNote.getSenderId());
+        response.setReceiver(receiver.getResult());
+        response.setSender(sender.getResult());
+
+
+        List<NoteImgResponse> noteImgResponses = Arrays.asList(new ModelMapper().map(sendNote.getNoteImgList(), NoteImgResponse[].class));
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("note",response);
+        result.put("noteImgList",noteImgResponses);
+
+        return result;
 
     }
 

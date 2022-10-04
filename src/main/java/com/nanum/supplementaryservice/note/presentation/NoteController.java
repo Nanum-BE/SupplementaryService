@@ -7,14 +7,9 @@ import com.nanum.supplementaryservice.note.application.NoteService;
 import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.dto.NoteByUserDto;
 import com.nanum.supplementaryservice.note.dto.NoteDto;
-import com.nanum.supplementaryservice.note.dto.NoteImgDto;
 import com.nanum.supplementaryservice.note.dto.NoteListDto;
-import com.nanum.supplementaryservice.note.vo.NoteImgResponse;
 import com.nanum.supplementaryservice.note.vo.NoteRequest;
-import com.nanum.supplementaryservice.note.vo.NoteResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,10 +34,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -137,26 +130,22 @@ public class NoteController {
 
     @GetMapping("/{noteId}")
     public ResponseEntity<Object> retrieveNote(@PathVariable("noteId")Long noteId){
-        Note note = noteService.retrieveNoteById(noteId);
 
         // 1. MAKE VO
-        NoteResponse response = new ModelMapper().map(note, NoteResponse.class);
-        List<NoteImgResponse> noteImgResponses = Arrays.asList(new ModelMapper().map(note.getNoteImgList(), NoteImgResponse[].class));
+        HashMap<String, Object> baseResponse = noteService.retrieveNoteById(noteId);
 
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("note",response);
-        result.put("noteImgList",noteImgResponses);
         // 2. MAKE HATEOAS
 //        EntityModel<NoteResponse> entityModel = EntityModel.of(response);
 //        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllNotes());
 //        entityModel.add(linkTo.withRel("all-notes"));
 
         // 3. MAKE BaseResponse
-        BaseResponse<HashMap<String, Object>> baseResponse = new BaseResponse<>(result);
+
 
         // 4. MAKE Filter
         SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
-                .filterOutAllExcept("id", "senderId", "receiverId", "title", "createAt","content");
+                .filterOutAllExcept("id", "senderId", "receiverId", "title", "createAt"
+                        ,"content","sender","receiver");
         SimpleFilterProvider filters = new SimpleFilterProvider()
                 .addFilter("NoteInfo", filter);
 
