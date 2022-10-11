@@ -17,4 +17,5 @@ public class NoteListDto {
     private Long receiverId;
     private UserDto receiver;
     private LocalDateTime createAt;
+    private String content;
 }
