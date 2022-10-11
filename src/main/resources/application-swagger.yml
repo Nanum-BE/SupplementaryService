@@ -9,7 +9,7 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
-    path: /bus/v3/api-docs
+    path: /bus/v3/api-docs/${spring.application.name}
 
   cache:
     disabled: true
