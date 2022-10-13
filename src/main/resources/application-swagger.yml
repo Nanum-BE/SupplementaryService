@@ -1,6 +1,6 @@
 springdoc:
   api-docs:
-    path: /api-docs/json
+    path: /openapi/supplementary-service
     groups:
       enabled: true
   default-produces-media-type: application/json;charset=UTF-8
@@ -9,7 +9,7 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
-    path: /bus/v3/api-docs/${spring.application.name}
+    path: /bus/v3/api-docs
 
   cache:
     disabled: true
