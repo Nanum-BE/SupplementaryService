@@ -23,7 +23,7 @@ public class OpenApiConfig {
                 .description(API_DESCRIPTION)
                 .license(new License().name("Apache 2.0").url("<http://springdoc.org>"));
 
-        return new OpenAPI().addServersItem(new Server().url("/web-flux-service/"))
+        return new OpenAPI().addServersItem(new Server().url("/supplementary-service/"))
                 .components(new Components().addSecuritySchemes("basicScheme",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")))
                 .info(info);
