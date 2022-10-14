@@ -11,13 +11,9 @@ import java.util.List;
 
 @FeignClient(name = "user-service")
 public interface UserServiceClient {
-
     @GetMapping(value = "/api/v1/users/{userId}", produces = "application/json")
-   UserResponse<UserDto> getUser(@PathVariable("userId") Long userId);
-
+    UserResponse<UserDto> getUser(@PathVariable("userId") Long userId);
     @GetMapping(value = "/api/v1/users/particular", produces = "application/json")
     UserResponse<List<UserDto>> getUsersById(@RequestParam(value="param", required=false, defaultValue="")
     List<Long> params);
-
-
 }

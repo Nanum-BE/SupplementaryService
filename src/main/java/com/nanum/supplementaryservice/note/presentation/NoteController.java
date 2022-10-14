@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -106,6 +107,12 @@ public class NoteController {
      *  @GetMapping(value = "/notes",produces = "application/vnd.company.appv1+json")*  * *
      *
      */
+    @GetMapping
+    public ResponseEntity<Flux<Note>> retrieveAllNotestest() {
+        List<Note> notes = noteService.retrieveNotes();
+
+        return ResponseEntity.status(HttpStatus.OK).body(Flux.fromIterable(notes));
+    }
     @GetMapping
     public ResponseEntity<List<Note>> retrieveAllNotes(){
         List<Note> notes = noteService.retrieveNotes();
