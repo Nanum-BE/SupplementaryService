@@ -154,7 +154,26 @@ public class NoteController {
 
         return ResponseEntity.status(HttpStatus.OK).body(jacksonValue);
     }
+    @GetMapping("/{noteId}/users/{userId}")
+    public ResponseEntity<Object> retrieveNoteByUserId(@PathVariable("noteId")Long noteId,
+                                                       @PathVariable("userId")Long userId){
+        NoteByUserDto noteByUserDto = new NoteByUserDto();
+        noteByUserDto.setNoteId(noteId);
+        noteByUserDto.setUserId(userId);
+        // 1. MAKE VO
+        HashMap<String, Object> baseResponse = noteService.retrieveNoteByIdAndUserId(noteByUserDto);
 
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter
+                .filterOutAllExcept("id", "senderId", "receiverId", "title", "createAt"
+                        ,"content","sender","receiver");
+        SimpleFilterProvider filters = new SimpleFilterProvider()
+                .addFilter("NoteInfo", filter);
+
+        MappingJacksonValue jacksonValue = new MappingJacksonValue(baseResponse);
+        jacksonValue.setFilters(filters);
+
+        return ResponseEntity.status(HttpStatus.OK).body(jacksonValue);
+    }
     @DeleteMapping("/{noteId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteNote(@PathVariable("noteId") Long noteId){
