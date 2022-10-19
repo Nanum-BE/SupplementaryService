@@ -34,4 +34,7 @@ public interface NoteService{
 
     void deleteNoteByUserId(NoteByUserDto noteByUserDto);
 
+    int countNotesByReceived(Long userId);
+
+    HashMap<String, Object> retrieveNoteByIdAndUserId(NoteByUserDto noteByUserDto);
 }

@@ -150,11 +150,16 @@ public class NoteServiceImpl implements NoteService{
         userServiceClient.getUser(noteByUserDto.getUserId());
 
         Optional<Note> note = noteRepository.findById(noteByUserDto.getNoteId());
+
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("Note [%s] not found",noteByUserDto.getNoteId()));
         }
+        Note updatedNote = note.get();
+        if(note.get().getReceiverId() == noteByUserDto.getUserId()){
+            updatedNote = changeReadMarkNote(note);
+        }
         ModelMapper modelMapper = new ModelMapper();
-        NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+        NoteChangeDto noteChangeDto = modelMapper.map(updatedNote, NoteChangeDto.class);
         Long deleterId = noteChangeDto.getDeleterId();
         // 2명 이상이 삭제할 때
         if(deleterId != 0){
@@ -167,6 +172,12 @@ public class NoteServiceImpl implements NoteService{
         noteRepository.save(changeNote);
 
     }
+
+    @Override
+    public int countNotesByReceived(Long userId) {
+        return noteRepository.countByReceiverIdAndReadMarkIsFalse(userId);
+    }
+
 
     @Override
     public void deleteNote(Long noteId) {
@@ -184,17 +195,7 @@ public class NoteServiceImpl implements NoteService{
         if(note.isEmpty()){
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteId));
         }
-        Note sendNote = note.get();
-
-        if(!note.get().isReadMark()){
-            // 읽음처리하기
-            ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
-            noteChangeDto.setReadMark(true);
-            Note changeNote = noteChangeDto.NoteChangeDto();
-            sendNote = noteRepository.save(changeNote);
-        }
+        Note sendNote = changeReadMarkNote(note);
 
         NoteResponse response = new ModelMapper().map(sendNote, NoteResponse.class);
         UserResponse<UserDto> receiver = userServiceClient.getUser(sendNote.getReceiverId());
@@ -211,6 +212,47 @@ public class NoteServiceImpl implements NoteService{
 
         return result;
 
+    }
+
+    @Override
+    public HashMap<String, Object> retrieveNoteByIdAndUserId(NoteByUserDto noteByUserDto) {
+        Optional<Note> note = noteRepository.findById(noteByUserDto.getNoteId());
+        if(note.isEmpty()){
+            throw new NoteNotFoundException(String.format("ID[%s] not found",noteByUserDto.getNoteId()));
+        }
+        Note sendNote = note.get();
+        if(note.get().getReceiverId() == noteByUserDto.getUserId()){
+            sendNote = changeReadMarkNote(note);
+        }
+
+        NoteResponse response = new ModelMapper().map(sendNote, NoteResponse.class);
+        UserResponse<UserDto> receiver = userServiceClient.getUser(sendNote.getReceiverId());
+        UserResponse<UserDto> sender = userServiceClient.getUser(sendNote.getSenderId());
+        response.setReceiver(receiver.getResult());
+        response.setSender(sender.getResult());
+
+
+        List<NoteImgResponse> noteImgResponses = Arrays.asList(new ModelMapper().map(sendNote.getNoteImgList(), NoteImgResponse[].class));
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("note",response);
+        result.put("noteImgList",noteImgResponses);
+
+        return result;
+    }
+    private Note changeReadMarkNote(Optional<Note> note) {
+        Note sendNote = note.get();
+
+        if(!note.get().isReadMark()){
+            // 읽음처리하기
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+            noteChangeDto.setReadMark(true);
+            Note changeNote = noteChangeDto.NoteChangeDto();
+            sendNote = noteRepository.save(changeNote);
+        }
+        return sendNote;
     }
 
     @Override

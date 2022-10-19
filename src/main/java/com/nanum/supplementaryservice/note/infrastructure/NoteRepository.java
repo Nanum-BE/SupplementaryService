@@ -21,7 +21,8 @@ public interface NoteRepository  extends JpaRepository<Note, Long> {
     @EntityGraph(attributePaths = {"noteImgList"})
     Optional<Note> findById(Long aLong);
 
+    int countByReceiverId(Long receiverId);
 
-
+    int countByReceiverIdAndReadMarkIsFalse(Long receiverId);
 }
 
