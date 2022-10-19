@@ -75,11 +75,11 @@ public class BlockServiceImpl implements BlockService{
     public Page<BlockedUserDto> retrieveBlocksByBlocker(Long blockerId, Pageable pageable) {
         UserResponse blockerUser = userServiceClient.getUser(blockerId);
 
-        log.info(String.valueOf(blockerUser));
-        List<Long> users = new ArrayList<>();
+            log.info(String.valueOf(blockerUser));
+            List<Long> users = new ArrayList<>();
 
-        // 정렬
-        ModelMapper modelMapper = new ModelMapper();
+            // 정렬
+            ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Page<BlockedUserDto>  blockUsers = blockRepository.findByBlockerId(blockerId, pageable).
                 map(block -> {
@@ -88,25 +88,23 @@ public class BlockServiceImpl implements BlockService{
                         }
                 );
 
-        log.info("userInfo:"+String.valueOf(blockUsers.getContent().get(0)));
-        if(blockUsers.getContent().size()<1){
-            return blockUsers;
-        }
-
         // 유저 id 정리
         log.info("User:"+ String.valueOf(users));
         // 유저 정보 가져오기
-        UserResponse<List<UserDto>> usersById = userServiceClient.getUsersById(users);
+        if(!users.isEmpty() || users.size()>0) {
+            UserResponse<List<UserDto>> usersById = userServiceClient.getUsersById(users);
 
-        return blockUsers.
-                map(block -> {
-                    for (UserDto user: usersById.getResult()) {
-                        if(user.getUserId().equals(block.getBlockedUserId())){
-                            block.setUser(user);
+            return blockUsers.
+                    map(block -> {
+                        for (UserDto user : usersById.getResult()) {
+                            if (user.getUserId().equals(block.getBlockedUserId())) {
+                                block.setUser(user);
+                            }
                         }
-                    }
-                 return block;
-                });
+                        return block;
+                    });
+        }
+        return blockUsers;
     }
 
     @Override

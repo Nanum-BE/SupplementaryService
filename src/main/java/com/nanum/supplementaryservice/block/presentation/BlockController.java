@@ -52,7 +52,7 @@ public class BlockController {
         boolean block = blockService.createBlock(blockDto);
         if(!block){
             BaseResponse<Object> baseResponse = new BaseResponse<>("기존에 차단한 사람입니다.", "No");
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(baseResponse);
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(baseResponse);
         }
 
         HashMap<String, Boolean> result = new HashMap<>();

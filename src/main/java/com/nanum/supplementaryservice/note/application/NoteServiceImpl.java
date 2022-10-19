@@ -169,6 +169,11 @@ public class NoteServiceImpl implements NoteService{
     }
 
     @Override
+    public int countNotesByReceived(Long userId) {
+        return noteRepository.countByReceiverIdAndReadMarkIsFalse(userId);
+    }
+
+    @Override
     public void deleteNote(Long noteId) {
         try{
             noteRepository.deleteById(noteId);

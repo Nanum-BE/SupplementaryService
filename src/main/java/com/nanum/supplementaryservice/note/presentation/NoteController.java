@@ -190,4 +190,10 @@ public class NoteController {
         BaseResponse<Page<NoteListDto>> response = new BaseResponse<>(noteListDtoList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    @GetMapping("/{userId}/count")
+    public ResponseEntity<BaseResponse<HashMap <String, Integer>>> countAllNotesByReceiver(@PathVariable("userId") Long userId){
+        HashMap <String, Integer> result = new HashMap<>();
+        result.put("count",noteService.countNotesByReceived(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponse<>(result));
+    }
 }
