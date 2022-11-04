@@ -221,8 +221,14 @@ public class NoteServiceImpl implements NoteService{
             throw new NoteNotFoundException(String.format("ID[%s] not found",noteByUserDto.getNoteId()));
         }
         Note sendNote = note.get();
-        if(note.get().getReceiverId() == noteByUserDto.getUserId()){
-            sendNote = changeReadMarkNote(note);
+        if(note.get().getReceiverId().equals(noteByUserDto.getUserId())){
+//            sendNote = changeReadMarkNote(note);
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            NoteChangeDto noteChangeDto = modelMapper.map(note.get(), NoteChangeDto.class);
+            noteChangeDto.setReadMark(true);
+            Note changeNote = noteChangeDto.NoteChangeDto();
+            sendNote = noteRepository.save(changeNote);
         }
 
         NoteResponse response = new ModelMapper().map(sendNote, NoteResponse.class);
