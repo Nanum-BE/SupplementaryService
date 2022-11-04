@@ -4,12 +4,12 @@ import com.nanum.supplementaryservice.note.domain.Note;
 import com.nanum.supplementaryservice.note.dto.NoteByUserDto;
 import com.nanum.supplementaryservice.note.dto.NoteDto;
 import com.nanum.supplementaryservice.note.dto.NoteListDto;
-import com.nanum.supplementaryservice.note.vo.NoteResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 public interface NoteService{
@@ -27,11 +27,14 @@ public interface NoteService{
     Page<NoteListDto> retrieveNotesByReceived(Long userId,Pageable pageable);
     List<Note> retrieveNotes();
     void deleteNote(Long noteId);
-    Note retrieveNoteById(Long noteId);
+    HashMap<String, Object> retrieveNoteById(Long noteId);
     Boolean existsById(Long noteId);
 
     void deleteNoteBySenderId(NoteByUserDto noteByUserDto);
 
     void deleteNoteByUserId(NoteByUserDto noteByUserDto);
 
+    int countNotesByReceived(Long userId);
+
+    HashMap<String, Object> retrieveNoteByIdAndUserId(NoteByUserDto noteByUserDto);
 }

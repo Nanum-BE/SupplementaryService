@@ -5,7 +5,12 @@ spring:
     username: nanum
     password: spharos1234!
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+#    hikari:
+#      idle-timeout: 100000
+#      max-lifetime: 580000
+#      connection-timeout: 10000
+#      validation-timeout: 10000
+#    url: jdbc:mysql://supplementary-db.mysql.database.azure.com/supplementaryDB?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,3 +24,6 @@ spring:
 #  spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect
 ##spring.jpa.properties.hibernate.format_sql = true
 
+
+#  spring.datasource.hikari.idle-timeout=300
+#  spring.datasource.hikari.max-lifetime=300

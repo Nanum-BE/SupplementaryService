@@ -1,6 +1,6 @@
 springdoc:
   api-docs:
-    path: /api-docs/json
+    path: /openapi/supplementary-service
     groups:
       enabled: true
   default-produces-media-type: application/json;charset=UTF-8
@@ -10,6 +10,7 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
     path: /bus/v3/api-docs
+
   cache:
     disabled: true
   packages-to-scan: com.nanum

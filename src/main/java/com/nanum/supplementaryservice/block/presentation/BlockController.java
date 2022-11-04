@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "차단", description = "차단 관련 api")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "created successfully",
-                content = @Content(schema = @Schema(defaultValue = " 등록 신청이 완료되었습니다."))),
+                content = @Content(schema = @Schema(implementation = BaseResponse.class))),
         @ApiResponse(responseCode = "400", description = "bad request",
                 content = @Content(schema = @Schema(defaultValue = "잘못된 입력 값입니다."))),
         @ApiResponse(responseCode = "500", description = "server error",
@@ -52,7 +52,7 @@ public class BlockController {
         boolean block = blockService.createBlock(blockDto);
         if(!block){
             BaseResponse<Object> baseResponse = new BaseResponse<>("기존에 차단한 사람입니다.", "No");
-            return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(baseResponse);
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(baseResponse);
         }
 
         HashMap<String, Boolean> result = new HashMap<>();
